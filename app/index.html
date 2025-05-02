@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Tarefas</title>
+</head>
+<body>
+    <h1>Lista de Tarefas</h1>
+
+    <form method="POST" action="/adicionar">
+        <input type="text" name="descricao" placeholder="Nova tarefa">
+        <button type="submit">Adicionar</button>
+    </form>
+
+    <ul>
+        {% for tarefa in tarefas %}
+        <li>
+            <form method="POST" action="/atualizar/{{ tarefa.id }}">
+                <input type="text" name="descricao" value="{{ tarefa.descricao }}">
+                <input type="checkbox" name="concluida" {% if tarefa.concluida %}checked{% endif %}> Concluída
+                <button type="submit">Atualizar</button>
+            </form>
+            <a href="/deletar/{{ tarefa.id }}">Deletar</a>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

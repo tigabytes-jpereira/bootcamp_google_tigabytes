@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request
 import requests
+import os
 
 app = Flask(__name__)
-BACKEND_URL = environ.get('BACKEND_URL') or 'http://localhost:8080'
+BACKEND_URL = os.environ.get('BACKEND_URL') or 'http://localhost:8080'
 
 @app.route('/')
 def index():

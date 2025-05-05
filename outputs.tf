@@ -1,15 +1,15 @@
-output "backend_vm_public_ip" {
-  value       = google_compute_instance.backend_vm.network_interface.0.access_config.0.nat_ip
-  description = "IP público da VM do backend"
+output "backend_internal_lb_ip" {
+  value       = google_compute_address.backend_internal_lb_ip.address
+  description = "IP reservado do Internal LB das VMs backend"
 }
 
-output "frontend_vm_public_ip" {
-  value       = google_compute_instance.frontend_vm.network_interface.0.access_config.0.nat_ip
-  description = "IP público da VM do frontend"
+output "frontend_lb_ip" {
+  value       = google_compute_address.frontend_lb_ip.address
+  description = "IP público do External LB das VMs frontend"
 }
 
 output "frontend_url" {
-  value       = "http://${google_compute_instance.frontend_vm.network_interface.0.access_config.0.nat_ip}"
+  value       = "http://${google_compute_address.frontend_lb_ip.address}"
   description = "URL do frontend"
 }
 

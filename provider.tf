@@ -6,9 +6,3 @@ terraform {
     }
   }
 }
-
-provider "google" {
-  project = "SEU_PROJETO_GCP" # Substitua pelo ID do seu projeto GCP
-  region  = "southamerica-east1" # Região de São Paulo (ou a sua preferida)
-  zone    = "southamerica-east1-a" # Zona dentro da região (opcional, dependendo do recurso)
-}

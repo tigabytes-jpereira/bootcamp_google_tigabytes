@@ -25,9 +25,15 @@ resource "google_storage_bucket" "scclab-bkt" {
   uniform_bucket_level_access = false
 }
 #Realizando o upload de um arquivo
-resource "google_storage_bucket_object" "default" {
- name         = "scclab-script.sh"
- source       = "~/bootcamp_google_tigabytes/scclab-script.sh"
+resource "google_storage_bucket_object" "backend" {
+ name         = "scclab-script-backend.sh"
+ source       = "~/bootcamp_google_tigabytes-main/scclab-script-backend.sh"
+ content_type = "text/x-shellscript"
+ bucket       = google_storage_bucket.scclab-bkt.id
+}
+resource "google_storage_bucket_object" "frontend" {
+ name         = "scclab-script-frontend.sh"
+ source       = "~/bootcamp_google_tigabytes-main/scclab-script-frontend.sh"
  content_type = "text/x-shellscript"
  bucket       = google_storage_bucket.scclab-bkt.id
 }
@@ -263,8 +269,9 @@ resource "google_compute_address" "frontend_lb_ip" {
   region = var.region
 }
 # Cria um health check para o Load Balancer para o Frontend
-resource "google_compute_health_check" "frontend_http_health_check" {
+resource "google_compute_region_health_check" "frontend_http_health_check" {
   name        = "frontend-http-health-check"
+  region      = var.region
   http_health_check {
     port        = 80 # Porta em que sua aplicação frontend responde
     request_path = "/" # Endpoint para verificar a saúde
@@ -275,7 +282,7 @@ resource "google_compute_region_backend_service" "frontend_service" {
   name                  = "frontend-service"
   region                = var.region
   protocol              = "HTTP"
-  health_checks         = [google_compute_health_check.frontend_http_health_check.id]
+  health_checks         = [google_compute_region_health_check.frontend_http_health_check.id]
   load_balancing_scheme = "EXTERNAL"
 
   backend  {
@@ -310,8 +317,9 @@ resource "google_compute_address" "backend_internal_lb_ip" {
   address      = "10.0.10.100" # Você pode especificar um IP dentro da subnet privada ou deixar o GCP atribuir um
 }
 # Cria um health check para o Load Balancer para o Frontend
-resource "google_compute_health_check" "backend_http_health_check" {
+resource "google_compute_region_health_check" "backend_http_health_check" {
   name        = "backend-http-health-check"
+  region      = var.region
   http_health_check {
     port        = 80 # Porta em que sua aplicação backend responde
     request_path = "/internal" # Endpoint para verificar a saúde
@@ -322,7 +330,7 @@ resource "google_compute_region_backend_service" "backend_service" {
   name                  = "backend-service"
   region                = var.region
   protocol              = "HTTP"
-  health_checks         = [google_compute_health_check.backend_http_health_check.id]
+  health_checks         = [google_compute_region_health_check.backend_http_health_check.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
 
    backend {

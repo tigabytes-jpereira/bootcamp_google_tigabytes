@@ -27,14 +27,12 @@ resource "google_storage_bucket" "scclab-bkt" {
 #Realizando o upload de um arquivo
 resource "google_storage_bucket_object" "backend" {
  name         = "scclab-script-backend.sh"
- source       = "~/bootcamp_google_tigabytes-main/scclab-script-backend.sh"
- content_type = "text/x-shellscript"
+ source       = "./bootcamp_google_tigabytes-main/scclab-script-backend.sh"
  bucket       = google_storage_bucket.scclab-bkt.id
 }
 resource "google_storage_bucket_object" "frontend" {
  name         = "scclab-script-frontend.sh"
- source       = "~/bootcamp_google_tigabytes-main/scclab-script-frontend.sh"
- content_type = "text/x-shellscript"
+ source       = "./bootcamp_google_tigabytes-main/scclab-script-frontend.sh"
  bucket       = google_storage_bucket.scclab-bkt.id
 }
 #Criando instância Memorystore for Redis
@@ -45,7 +43,7 @@ resource "google_storage_bucket_object" "frontend" {
    name           = "memorystore"
    tier           = "STANDARD_HA"
    project_id     = var.project
-   memory_size_gb = 1
+   memory_size_gb = 5
    enable_apis    = "true"
    region         = var.region
    replica_count  = 2

@@ -185,7 +185,7 @@ resource "google_compute_instance_template" "instance-template-web" {
 
   metadata = {
     enable-osconfig = "TRUE"
-    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/app/ssclab-script-frontend.sh\nsudo chmod +x .scclab-script-frontend.sh"
+    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/ssclab-script-frontend.sh\nsudo chmod +x .scclab-script-frontend.sh"
   }
   
   service_account {
@@ -224,7 +224,7 @@ resource "google_compute_instance_template" "instance-template-app" {
 
   metadata = {
     enable-osconfig = "TRUE"
-    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/app/ssclab-script-backend.sh\nsudo chmod +x .scclab-script-backend.sh"
+    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/ssclab-script-backend.sh\nsudo chmod +x .scclab-script-backend.sh"
   }
 
   service_account {

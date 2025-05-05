@@ -185,7 +185,7 @@ resource "google_compute_instance_template" "instance-template-web" {
 
   metadata = {
     enable-osconfig = "TRUE"
-    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/ssclab-script-frontend.sh\nsudo chmod +x .scclab-script-frontend.sh"
+    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/app/ssclab-script-frontend.sh\nsudo chmod +x .scclab-script-frontend.sh"
   }
   
   service_account {
@@ -193,7 +193,6 @@ resource "google_compute_instance_template" "instance-template-web" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
-  depends_on = [google_compute_firewall.backend_firewall]
 }
 resource "google_compute_instance_template" "instance-template-app" {
   name_prefix  = "scclab-app-vm-"
@@ -224,7 +223,7 @@ resource "google_compute_instance_template" "instance-template-app" {
 
   metadata = {
     enable-osconfig = "TRUE"
-    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/ssclab-script-backend.sh\nsudo chmod +x .scclab-script-backend.sh"
+    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/app/ssclab-script-backend.sh\nsudo chmod +x .scclab-script-backend.sh"
   }
 
   service_account {
@@ -232,7 +231,6 @@ resource "google_compute_instance_template" "instance-template-app" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
-  depends_on = [google_compute_firewall.backend_firewall]
 }
 # Criação do MIG (Managed Instance Group) de Frontend
 resource "google_compute_region_instance_group_manager" "mig-web" {
@@ -280,8 +278,8 @@ resource "google_compute_region_backend_service" "frontend_service" {
   health_checks         = [google_compute_health_check.frontend_http_health_check.id]
   load_balancing_scheme = "EXTERNAL"
 
-  group {
-    instance_group = google_compute_region_instance_group_manager.mig-web.instance_group
+  backend  {
+    group = google_compute_region_instance_group_manager.mig-web.instance_group
   }
 }
 # Cria um URL map para rotear as requisições para o Frontend
@@ -293,7 +291,6 @@ resource "google_compute_url_map" "frontend_http_url_map" {
 resource "google_compute_target_http_proxy" "frontend_http_proxy" {
   name        = "frontend-http-proxy"
   url_map     = google_compute_url_map.frontend_http_url_map.id
-  region      = var.region
 }
 # Cria a regra de encaminhamento global para o Load Balancer HTTP externo
 resource "google_compute_global_forwarding_rule" "frontend_http_forwarding_rule" {
@@ -328,12 +325,12 @@ resource "google_compute_region_backend_service" "backend_service" {
   health_checks         = [google_compute_health_check.backend_http_health_check.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
 
-  group {
-    instance_group = google_compute_region_instance_group_manager.mig-app.instance_group
+   backend {
+    group = google_compute_region_instance_group_manager.mig-app.instance_group
   }
 }
 # Cria a regra de encaminhamento regional para o Load Balancer HTTP interno
-resource "google_compute_region_forwarding_rule" "backend_http_forwarding_rule_internal" {
+resource "google_compute_forwarding_rule" "backend_http_forwarding_rule_internal" {
   name         = "backend-http-forwarding-rule-internal"
   region       = var.region
   backend_service = google_compute_region_backend_service.backend_service.id

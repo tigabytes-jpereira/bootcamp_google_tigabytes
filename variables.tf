@@ -1,6 +1,23 @@
+variable "project" {
+  description = "Projeto GCP a ser utilizado para o Lab"
+  default     = "MUDE_O_NOME_DO_PROJETO"
+}
+
+variable "region" {
+  description = "Região a ser utilizado para o Lab"
+  type        = string
+  default     = "us-east1"
+}
+
+variable "zone" {
+  description = "Zona dentro da Região a ser utilizado para o Lab"
+  type        = string
+  default     = "us-east1-b"
+}
+
 variable "spanner_instance_name" {
   type        = string
-  default     = "app-tres-camadas-spanner"
+  default     = "scclab-spanner"
   description = "Nome da instância do Cloud Spanner"
 }
 
@@ -16,56 +33,12 @@ variable "spanner_database_name" {
   description = "Nome do banco de dados do Spanner"
 }
 
-/* variable "cloudsql_user" {
-  type        = string
-  default     = "app_user"
-  description = "Nome do usuário do banco de dados"
+variable "bucket_name" {
+  description = "Nome único para o bucket a ser criado."
+  default     = "INSIRA_UM_NOME_UNICO"
 }
 
-variable "cloudsql_password" {
-  type        = string
-  sensitive   = true
-  description = "Senha do usuário do banco de dados"
-} */
-
-variable "backend_vm_name" {
-  type        = string
-  default     = "backend-vm"
-  description = "Nome da VM para o backend"
-}
-
-variable "backend_vm_machine_type" {
-  type        = string
-  default     = "e2-micro"
-  description = "Tipo de máquina para a VM do backend"
-}
-
-variable "backend_vm_zone" {
-  type        = string
-  default     = "us-east1-b"
-  description = "Zona da VM do backend"
-}
-
-variable "frontend_vm_name" {
-  type        = string
-  default     = "frontend-vm"
-  description = "Nome da VM para o frontend"
-}
-
-variable "frontend_vm_machine_type" {
-  type        = string
-  default     = "e2-micro"
-  description = "Tipo de máquina para a VM do frontend"
-}
-
-variable "frontend_vm_zone" {
-  type        = string
-  default     = "us-east1-b" # Usando uma zona diferente para alta disponibilidade (opcional)
-  description = "Zona da VM do frontend"
-}
-
-variable "vm_image" {
-  type        = string
-  default     = "debian-cloud/debian-11" # Imagem base para as VMs
-  description = "Imagem do sistema operacional para as VMs"
+variable "target_size" {
+  description = "The target number of running instances for this managed instance group. This value should always be explicitly set unless this resource is attached to an autoscaler, in which case it should never be set."
+  default     = 3
 }

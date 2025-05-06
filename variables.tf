@@ -6,13 +6,25 @@ variable "project" {
 variable "region" {
   description = "Região a ser utilizado para o Lab"
   type        = string
-  default     = "us-east1"
+  default     = "us-east1" #Deve ser alterado de acordo com a região escolhida
 }
 
-variable "zone" {
+variable "zone1" {
   description = "Zona dentro da Região a ser utilizado para o Lab"
   type        = string
-  default     = "us-east1-b"
+  default     = "us-east1-b" #Deve ser alterado de acordo com a região escolhida
+}
+
+variable "zone2" {
+  description = "Zona dentro da Região a ser utilizado para o Lab"
+  type        = string
+  default     = "us-east1-c" #Deve ser alterado de acordo com a região escolhida
+}
+
+variable "zone3" {
+  description = "Zona dentro da Região a ser utilizado para o Lab"
+  type        = string
+  default     = "us-east1-d" #Deve ser alterado de acordo com a região escolhida
 }
 
 variable "spanner_instance_name" {
@@ -35,7 +47,7 @@ variable "spanner_database_name" {
 
 variable "bucket_name" {
   description = "Nome único para o bucket a ser criado."
-  default     = "INSIRA_UM_NOME_UNICO"
+  default     = "INSIRA_UM_NOME_UNICO" #Deve ser alterado com um nome único global
 }
 
 variable "target_size" {

@@ -1,6 +1,7 @@
 # Criação da instância do Cloud Spanner
 resource "google_spanner_instance" "main" {
   name         = var.spanner_instance_name
+  project      = var.project
   config       = var.spanner_config
   display_name = var.spanner_instance_name
   num_nodes    = 1 # Comece com 1 nó para demonstração, aumente conforme necessário
@@ -9,6 +10,7 @@ resource "google_spanner_instance" "main" {
 # Criação do banco de dados do Spanner
 resource "google_spanner_database" "tarefas" {
   name     = var.spanner_database_name
+  project         = var.project
   instance = google_spanner_instance.main.name
   ddl = [
     "CREATE TABLE Tarefas (id STRING(36) NOT NULL PRIMARY KEY, descricao STRING(MAX) NOT NULL, concluida BOOL NOT NULL)"
@@ -56,6 +58,7 @@ module "memorystore" {
 resource "google_compute_network" "vpc_network" {
   auto_create_subnetworks = false
   name                    = "scclab-network"
+  project      = var.project
   }
 # Criação da subnet Publica
 resource "google_compute_subnetwork" "subnet_publica" {
@@ -63,6 +66,7 @@ resource "google_compute_subnetwork" "subnet_publica" {
   name          = "scclab-pubsn-frontend"
   network       = google_compute_network.vpc_network.id
   region        = var.region
+  project       = var.project
 }
 # Criação da subnet Privada
 resource "google_compute_subnetwork" "subnet_privada" {
@@ -70,6 +74,7 @@ resource "google_compute_subnetwork" "subnet_privada" {
   name          = "scclab-pvtsn-app"
   network       = google_compute_network.vpc_network.id
   region        = var.region
+  project       = var.project
   private_ip_google_access = true
 }
 #Criando a Subnet Proxy-only para o Internal LB
@@ -80,20 +85,24 @@ resource "google_compute_subnetwork" "proxy_only_subnet" {
   ip_cidr_range            = "10.129.0.0/23" # Intervalo de IP dedicado para a sub-rede proxy-only
   network                  = google_compute_network.vpc_network.id
   region                   = var.region
+  project                  = var.project
 }
 # Cria um endereço IP público para o NAT gateway
 resource "google_compute_address" "nat_ip" {
   name   = "nat-ip-backend"
   region = var.region
+  project         = var.project
 }
 # Cria o Cloud NAT gateway para permitir que instâncias na subnet privada acessem a internet
 resource "google_compute_router" "router_nat" {
   name    = "router-nat-backend"
   network = google_compute_network.vpc_network.id
   region  = var.region
+  project         = var.project
 }
 resource "google_compute_router_nat" "nat_config" {
   name                               = "nat-config-backend"
+  project                            = var.project
   router                             = google_compute_router.router_nat.name
   region                             = google_compute_router.router_nat.region
   nat_ip_allocate_option             = "MANUAL_ONLY"
@@ -103,6 +112,7 @@ resource "google_compute_router_nat" "nat_config" {
 # Regra de firewall para permitir tráfego HTTP e HTTPS de qualquer lugar para a subnet pública
 resource "google_compute_firewall" "allow_http_https_frontend" {
   name    = "scclab-allow-http-https-frontend"
+  project = var.project
   network = google_compute_network.vpc_network.name
   allow {
     ports   = ["80", "443"]
@@ -115,6 +125,7 @@ resource "google_compute_firewall" "allow_http_https_frontend" {
 # Regra de firewall para permitir tráfego SSH da sua rede para ambas as subnets para administração
 resource "google_compute_firewall" "allow_ssh_from_your_network" {
   name    = "scclab-allow-ssh-from-your-network"
+  project = var.project
   network = google_compute_network.vpc_network.name
   allow {
     ports    = ["22"]
@@ -127,6 +138,7 @@ resource "google_compute_firewall" "allow_ssh_from_your_network" {
 # Regra de firewall para permitir todo o tráfego da subnet pública para a subnet privada
 resource "google_compute_firewall" "allow_frontend_to_backend" {
   name    = "scclab-allow-frontend-to-backend"
+  project = var.project
   network = google_compute_network.vpc_network.name
   allow {
     ports    = ["0-65535"]
@@ -140,6 +152,7 @@ resource "google_compute_firewall" "allow_frontend_to_backend" {
 # Regra de firewall para permitir tráfego ICMP (ping) para subnet pública para diagnóstico
 resource "google_compute_firewall" "allow_icmp_to_frontend" {
   name    = "scclab-allow-icmp-to-frontend"
+  project = var.project
   network = google_compute_network.vpc_network.name
   allow {
     protocol = "icmp"
@@ -152,6 +165,7 @@ resource "google_compute_firewall" "allow_icmp_to_frontend" {
 # Regra de firewall para permitir tráfego ICMP (ping) para subnet privada para diagnóstico
 resource "google_compute_firewall" "allow_icmp_to_backend" {
   name    = "scclab-allow-icmp-to-backend"
+  project = var.project
   network = google_compute_network.vpc_network.name
   allow {
     protocol = "icmp"
@@ -164,6 +178,7 @@ resource "google_compute_firewall" "allow_icmp_to_backend" {
 # Regra de firewall para permitir o health check do load balancer nas instâncias do frontend e backend
 resource "google_compute_firewall" "allow_health_check" {
   name    = "scclab-allow-health-check"
+  project = var.project
   network = google_compute_network.vpc_network.name
   allow {
     ports    = ["80", "443"] # Assumindo que sua aplicação backend responde na porta 80
@@ -252,6 +267,7 @@ resource "google_compute_instance_template" "instance-template-app" {
 # Criação do MIG (Managed Instance Group) de Frontend
 resource "google_compute_region_instance_group_manager" "mig-web" {
   name                      = "mig-web"
+  project                   = var.project
   region                    = var.region
   distribution_policy_zones = [var.zone1, var.zone2, var.zone3] #Considerando a região de US-EAST1, preencha de acordo com a região escolhida
   target_size               = var.target_size
@@ -264,6 +280,7 @@ resource "google_compute_region_instance_group_manager" "mig-web" {
 # Criação do MIG (Managed Instance Group) de Backend
 resource "google_compute_region_instance_group_manager" "mig-app" {
   name                      = "mig-app"
+  project                   = var.project
   region                    = var.region
   distribution_policy_zones = [var.zone1, var.zone2, var.zone3] #Considerando a região de US-EAST1, preencha de acordo com a região escolhida
   target_size               = var.target_size
@@ -426,6 +443,7 @@ resource "google_compute_address" "frontend_lb_ip" {
   name   = "scclab-lb-frontend-ip"
   region = var.region
   address_type = "EXTERNAL"
+  project = var.project
 }
 module "external_lb" {
   source = "GoogleCloudPlatform/lb-http/google"
@@ -468,6 +486,7 @@ module "external_lb" {
 # Reserva de IP Privado e criação do Internal Load Balancer para o Backend
 resource "google_compute_address" "backend_internal_lb_ip" {
   name         = "internal-lb-ip-backend"
+  project      = var.project
   region       = var.region
   subnetwork   = google_compute_subnetwork.subnet_privada.id
   address_type = "INTERNAL"
@@ -477,8 +496,9 @@ resource "google_compute_address" "backend_internal_lb_ip" {
 # Cria um health check para o Load Balancer para o Frontend
 resource "google_compute_region_health_check" "backend_http_health_check" {
   name        = "backend-http-health-check"
-  provider = google-beta
-  region   = var.region
+  provider    = google-beta
+  project     = var.project
+  region      = var.region
   http_health_check {
     port        = 80 # Porta em que sua aplicação backend responde
   }
@@ -486,6 +506,7 @@ resource "google_compute_region_health_check" "backend_http_health_check" {
 # Cria um REGIONAL service para o Load Balancer para o Backend
 resource "google_compute_region_backend_service" "backend_service" {
   name                  = "backend-service"
+  project               = var.project
   provider              = google-beta
   region                = var.region
   protocol              = "HTTP"
@@ -503,6 +524,7 @@ resource "google_compute_region_backend_service" "backend_service" {
 # URL map
 resource "google_compute_region_url_map" "backend_http_url_map" {
   name            = "backend-http-url-map"
+  project               = var.project
   provider        = google-beta
   region          = var.region
   default_service = google_compute_region_backend_service.backend_service.id
@@ -511,6 +533,7 @@ resource "google_compute_region_url_map" "backend_http_url_map" {
 # HTTP target proxy
 resource "google_compute_region_target_http_proxy" "backend_target_http_proxy" {
   name     = "backend-target-http-proxy"
+  project               = var.project
   provider = google-beta
   region   = var.region
   url_map  = google_compute_region_url_map.backend_http_url_map.id
@@ -519,6 +542,7 @@ resource "google_compute_region_target_http_proxy" "backend_target_http_proxy" {
 # Cria a regra de encaminhamento regional para o Load Balancer HTTP interno
 resource "google_compute_forwarding_rule" "backend_http_forwarding_rule_internal" {
   name         = "backend-http-forwarding-rule-internal"
+  project               = var.project
   provider     = google-beta
   region       = var.region
   depends_on     = [google_compute_subnetwork.proxy_only_subnet, google_compute_region_target_http_proxy.backend_target_http_proxy]

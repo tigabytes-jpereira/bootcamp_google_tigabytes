@@ -463,7 +463,7 @@ module "external_lb" {
     }
   }
   address    = google_compute_address.frontend_lb_ip.address
-  depends_on = [google_compute_network.vpc_network, google_compute_subnetwork.subnet_publica, google_compute_region_instance_group_manager.mig-web,security_policy, google_compute_security_policy.cloud_armor_enterprise_policy]
+  depends_on = [google_compute_network.vpc_network, google_compute_subnetwork.subnet_publica, google_compute_region_instance_group_manager.mig-web, google_compute_security_policy.cloud_armor_enterprise_policy]
 }
 # Reserva de IP Privado e criação do Internal Load Balancer para o Backend
 resource "google_compute_address" "backend_internal_lb_ip" {

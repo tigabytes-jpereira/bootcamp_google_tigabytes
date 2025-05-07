@@ -93,5 +93,6 @@ E as permissões abaixo no nível de organização se necessário:
 Mencione todos aqueles que ajudaram a levantar o projeto desde o seu início
 
 * **Jean Vinicius** - *IaC, Apresentação e  e Documentação* - [Cloud Architect - Pre-Sales | Tigabytes] (https://www.linkedin.com/in/jean-vf-pereira/)
+* **Rogério Magnani** - *Apresentação* - [Cloud Architect - Pre-Sales | Tigabytes] (https://www.linkedin.com/in/rogeriomagnani/)
 * **Victor Souza** - *Apresentação* - [Cloud Architect - Pre-Sales | Tigabytes] (https://www.linkedin.com/in/victor-luis-in/)
 * **Natanael Tavares** - *Arquitetura do Ambiente* - [Customer Engineer | Google] (https://www.linkedin.com/in/natanael-tavares-21ab18137/)

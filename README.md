@@ -8,7 +8,7 @@ Neste laboratório iremos implementar um ambiente ficticio que será utilizado d
 
 ### 📋 Pré-requisitos
 
-Conta de Acesso com permissões para implmentação dos componentes abaixo em sua conta GCP:
+Conta de Acesso com permissões para implementação dos componentes abaixo em sua conta GCP:
 - Compute Engine
 - Instance Templates
 - Managed Instances Group

@@ -1,6 +1,6 @@
 variable "project" {
   description = "Projeto GCP a ser utilizado para o Lab"
-  default     = "MUDE_O_NOME_DO_PROJETO"
+  default     = "laboratorio-victor-souza"  #Deve ser alterado de acordo com seu ambiente
 }
 
 variable "region" {
@@ -47,7 +47,7 @@ variable "spanner_database_name" {
 
 variable "bucket_name" {
   description = "Nome único para o bucket a ser criado."
-  default     = "INSIRA_UM_NOME_UNICO" #Deve ser alterado com um nome único global
+  default     = "scclab-bkt" #Deve ser alterado com um nome único global
 }
 
 variable "target_size" {

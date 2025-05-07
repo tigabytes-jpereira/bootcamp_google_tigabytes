@@ -202,6 +202,7 @@ resource "google_compute_instance_template" "instance-template-web" {
   network_interface {
     network = google_compute_network.vpc_network.name
     subnetwork = "scclab-pubsn-frontend"
+    subnetwork_project = var.project
     access_config { #Comentar este bloco para corrigir erro apontado pelo SCC
       network_tier = "PREMIUM"
     }
@@ -215,7 +216,7 @@ resource "google_compute_instance_template" "instance-template-web" {
 #  }
   metadata = {
     enable-osconfig = "TRUE"
-    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/scclab-script-frontend.sh\nsudo chmod +x scclab-script-frontend.sh\nsudo ./scclab-script-frontend.sh"
+    startup-script  = "#!/bin/bash\napt update -y && apt upgrade -y\napt install nginx -y\nsystemctl enable nginx\nsystemctl start nginx\nvm_hostname=$(curl -s \"http://metadata.google.internal/computeMetadata/v1/instance/name\" -H \"Metadata-Flavor: Google\")\ncd /var/www/html/\nwget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/index.html"
   }
   
   service_account {
@@ -239,6 +240,7 @@ resource "google_compute_instance_template" "instance-template-app" {
   network_interface {
     network = google_compute_network.vpc_network.name
     subnetwork = "scclab-pvtsn-app"
+    subnetwork_project = var.project
     access_config {#Comentar este bloco para corrigir erro apontado pelo SCC
       network_tier = "PREMIUM"
     }
@@ -254,9 +256,8 @@ resource "google_compute_instance_template" "instance-template-app" {
 
   metadata = {
     enable-osconfig = "TRUE"
-    startup-script  = "#!/bin/bash\nsudo wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/scclab-script-backend.sh\nsudo chmod +x scclab-script-backend.sh\nsudo ./scclab-script-backend.sh"
+    startup-script  = "#!/bin/bash\napt update -y && apt upgrade -y\napt install nginx -y\nsystemctl enable nginx\nsystemctl start nginx\nvm_hostname=$(curl -s \"http://metadata.google.internal/computeMetadata/v1/instance/name\" -H \"Metadata-Flavor: Google\")\ncat > /var/www/html/index.html <<EOF\n<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<body>\n    Bienvenido a Tigabytes! Instance utilizada: $vm_hostname da subnet privada.\n</body>\n</html>\nEOF"
   }
-
   service_account {
     scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
@@ -291,152 +292,114 @@ resource "google_compute_region_instance_group_manager" "mig-app" {
   depends_on = [google_compute_instance_template.instance-template-app]
 }
 #Criando a Security Policy a ser aplicada ao Cloud Armor
-resource "google_compute_security_policy" "cloud_armor_enterprise_policy" {
-  name        = "armor-policy-frontend-lb"
-  project     = var.project                  
-  description = "Política de segurança Enterprise para o Load Balancer"
-  type        = "CLOUD_ARMOR"
+module "cloud_armor" {
+  source   = "GoogleCloudPlatform/cloud-armor/google"
+  version  = "~> 5.0"
 
-  rule {
-    priority    = 100
-    action      = "allow"
-    description = "Permite apenas conexões oriundas do Brasil"
-    match {
-      expr {
-        expression = "inIpRange(origin.ip, 'origin.region_code == 'BR'')"
-      }
+  project_id                           = var.project
+  name                                 = "armor-policy-frontend-lb"
+  description                          = "Cloud Armor Security Policy"
+  default_rule_action                  = "deny"
+  type                                 = "CLOUD_ARMOR"
+  layer_7_ddos_defense_enable          = true
+  layer_7_ddos_defense_rule_visibility = "STANDARD"
+
+  custom_rules = {
+    allow_specific_regions = {
+        action             = "allow"
+        priority           = 1000
+        description        = "Permite apenas conexões oriundas do Brasil"
+        expression         = "origin.region_code == 'BR'"
     }
+    deny_specific_regions = {
+        action             = "deny(403)"
+        priority           = 1001
+        description        = "Bloquear conexões oriundas da China"
+        expression         = "origin.region_code == 'CN'"
+    }    
   }
-  rule {
-    priority    = 1001
-    action      = "deny(403)"
-    description = "Bloquear IPs oriundos da China"
-    match {
-      expr {
-        expression = "inIpRange(origin.ip, 'origin.region_code == 'CN'')"
-      }
+
+  pre_configured_rules = {
+    "sqli-stable_level_1" = {
+      action            = "deny(403)"
+      priority          = 1002
+      description       = "SQL Injection Sensitivity Level 1"
+      target_rule_set   = "sqli-v33-stable"
+      sensitivity_level = 1
     }
+
+    "xss-stable_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1003
+      description             = "XSS Sensitivity Level 1"
+      target_rule_set         = "xss-v33-stable"
+      sensitivity_level       = 1
+    }
+
+    "php-stable_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1004
+      description             = "PHP Injection Sensitivity Level 1"
+      target_rule_set         = "php-v33-stable"
+      sensitivity_level       = 1
+    }
+    "lfi-stable_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1005
+      description             = "LFI Sensitivity Level 1"
+      target_rule_set         = "lfi-v33-stable"
+      sensitivity_level       = 1
+    }
+    "rce-stable_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1006
+      description             = "RCE Sensitivity Level 1"
+      target_rule_set         = "rce-v33-stable"
+      sensitivity_level       = 1
+    }
+    "scanner-stable_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1007
+      description             = "Scanner Detection Sensitivity Level 1"
+      target_rule_set         = "scannerdetection-v33-stable"
+      sensitivity_level       = 1
+    }
+    "protocolattack-stable_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1008
+      description             = "Protocol Attack Sensitivity Level 1"
+      target_rule_set         = "protocolattack-v33-stable"
+      sensitivity_level       = 1
+    }
+    "session-fixation_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1009
+      description             = "Session Fixation Sensitivity Level 1"
+      target_rule_set         = "sessionfixation-v33-stable"
+      sensitivity_level       = 1
+    }
+    "java_attack_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1010
+      description             = "Java Attack Sensitivity Level 1"
+      target_rule_set         = "java-v33-stable"
+      sensitivity_level       = 1
+    }  
+    "nodejs-attack_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1011
+      description             = "NodeJS Attack Sensitivity Level 1"
+      target_rule_set         = "nodejs-v33-stable"
+      sensitivity_level       = 1
+    }   
+    "cve_level_1" = {
+      action                  = "deny(403)"
+      priority                = 1012
+      description             = "CVE and other vulnerabilities"
+      target_rule_set         = "cve-canary"
+      sensitivity_level       = 1
+    }                                      
   }
-  rule {
-    priority    = 1002
-    action      = "deny(403)"
-    description = "Cross-Site Scripting"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('xss-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1003
-    action      = "deny(403)"
-    description = "SQL Injection"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('sqli-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1004
-    action      = "deny(403)"
-    description = "Local File Inclusion (LFI)"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('lfi-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1005
-    action      = "deny(403)"
-    description = "Remote Code Execution (RCE)"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('rce-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1006
-    action      = "deny(403)"
-    description = "Scanner Detection"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('scannerdetection-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1007
-    action      = "deny(403)"
-    description = "Protocol attack"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('protocolattack-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1008
-    action      = "deny(403)"
-    description = "PHP Injection Attack"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('php-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1009
-    action      = "deny(403)"
-    description = "Session Fixation"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('sessionfixation-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1010
-    action      = "deny(403)"
-    description = "Java Attack"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('java-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1011
-    action      = "deny(403)"
-    description = "NodeJS Attack"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('nodejs-v33-stable')"
-      }
-    }
-  }
-  rule {
-    priority    = 1012
-    action      = "deny(403)"
-    description = "CVE and other vulnerabilities"
-    match {
-      expr {
-        expression = "evaluatePreconfiguredWaf('cve-canary')"
-      }
-    }
-  }
-  rule {
-    priority    = 2147483647
-    action      = "deny(403)"
-    description = "Default rule, higher priority overrides its"
-    match {
-      config {
-        src_ip_ranges = ["*"]
-      }
-    }
-  }                     
 }
 # Reserva de IP Público e criação do External Load Balancer para o Frontend
 resource "google_compute_address" "frontend_lb_ip" {
@@ -458,7 +421,6 @@ module "external_lb" {
       protocol                    = "HTTP"
       timeout_sec                 = 10
       enable_cdn                  = false
-      security_policy             = google_compute_security_policy.cloud_armor_enterprise_policy.id
       health_check = {
         request_path        = "/"
         port                = "80"
@@ -480,8 +442,9 @@ module "external_lb" {
       ]
     }
   }
+  security_policy             = module.cloud_armor.policy.self_link
   address    = google_compute_address.frontend_lb_ip.address
-  depends_on = [google_compute_network.vpc_network, google_compute_subnetwork.subnet_publica, google_compute_region_instance_group_manager.mig-web, google_compute_security_policy.cloud_armor_enterprise_policy]
+  depends_on = [google_compute_network.vpc_network, google_compute_subnetwork.subnet_publica, google_compute_region_instance_group_manager.mig-web, module.cloud_armor.policy]
 }
 # Reserva de IP Privado e criação do Internal Load Balancer para o Backend
 resource "google_compute_address" "backend_internal_lb_ip" {
@@ -493,7 +456,7 @@ resource "google_compute_address" "backend_internal_lb_ip" {
   address      = "10.0.10.100" # Você pode especificar um IP dentro da subnet privada ou deixar o GCP atribuir um
   depends_on     = [google_compute_subnetwork.subnet_privada]
 }
-# Cria um health check para o Load Balancer para o Frontend
+# Cria um health check para o Load Balancer para o Backtend
 resource "google_compute_region_health_check" "backend_http_health_check" {
   name        = "backend-http-health-check"
   provider    = google-beta

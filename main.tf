@@ -109,6 +109,19 @@ resource "google_compute_router_nat" "nat_config" {
   nat_ips                            = [google_compute_address.nat_ip.self_link]
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
+# Regra de firewall para permitir WSS Scan de qualquer lugar para a subnet pública
+resource "google_compute_firewall" "allow_wss_scan_frontend" {
+  name    = "scclab-allow-wss-scan-frontend"
+  project = var.project
+  network = google_compute_network.vpc_network.name
+  allow {
+    ports   = ["8080"]
+    protocol = "tcp"
+  }
+  direction     = "INGRESS"
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["web-server"] # Aplique essa tag nas instâncias de frontend
+}
 # Regra de firewall para permitir tráfego HTTP e HTTPS de qualquer lugar para a subnet pública
 resource "google_compute_firewall" "allow_http_https_frontend" {
   name    = "scclab-allow-http-https-frontend"
@@ -216,7 +229,7 @@ resource "google_compute_instance_template" "instance-template-web" {
 #  }
   metadata = {
     enable-osconfig = "TRUE"
-    startup-script  = "#!/bin/bash\napt update -y && apt upgrade -y\napt install nginx -y\nsystemctl enable nginx\nsystemctl start nginx\nvm_hostname=$(curl -s \"http://metadata.google.internal/computeMetadata/v1/instance/name\" -H \"Metadata-Flavor: Google\")\ncd /var/www/html/\nwget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/index.html"
+    startup-script  = "#!/bin/bash\napt update -y && apt upgrade -y\napt install nginx -y\napt install python3-flask -y\nsystemctl enable nginx\nsystemctl start nginx\nvm_hostname=$(curl -s \"http://metadata.google.internal/computeMetadata/v1/instance/name\" -H \"Metadata-Flavor: Google\")\ncd /var/www/html/\nwget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/index.html\nmkdir app && cd app\ngsutil cp gs://cloud-training/GCPSEC-ScannerAppEngine/flask_code.tar . && tar xvf flask_code.tar\npython3 app.py"
   }
   
   service_account {

@@ -50,10 +50,10 @@ Verifique se as APIs relacionadas aos serviços acima estão devidamente habilit
         + instance_group_web     = (known after apply)
         + self_link_app          = (known after apply)
         + self_link_web          = (known after apply)
-
-13. Agora iniciaremos a implementação com o comando: terraform apply
-14. Quando solicitado, digite "yes" para continuar. Agora só aguardar. Leva aproximadamente uns 10min.
-15. Para validar se todos os componentes foram criados corretamente, basta acessar seus respectivos menus no console.
+13. Salve essas informações da saída pois usaremos durante o bootcamp.
+14. Agora iniciaremos a implementação com o comando: terraform apply
+15. Quando solicitado, digite "yes" para continuar. Agora só aguardar. Leva aproximadamente uns 10min.
+16. Para validar se todos os componentes foram criados corretamente, basta acessar seus respectivos menus no console.
 
 ## ⚙️ Pós Instalação
 

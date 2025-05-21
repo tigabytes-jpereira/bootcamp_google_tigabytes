@@ -1,6 +1,6 @@
 variable "project" {
   description = "Projeto GCP a ser utilizado para o Lab"
-  default     = "laboratorio-victor-souza"  #Deve ser alterado de acordo com seu ambiente
+  default     = "PROJECT_NAME"  #Deve ser alterado de acordo com seu ambiente
 }
 
 variable "region" {

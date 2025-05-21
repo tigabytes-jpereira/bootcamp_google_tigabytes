@@ -47,7 +47,7 @@ variable "spanner_database_name" {
 
 variable "bucket_name" {
   description = "Nome único para o bucket a ser criado."
-  default     = "scclab-bkt" #Deve ser alterado com um nome único global
+  default     = "UNIQUE_BUCKET_NAME" #Deve ser alterado com um nome único global
 }
 
 variable "target_size" {

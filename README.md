@@ -54,6 +54,7 @@ Verifique se as APIs relacionadas aos serviços acima estão devidamente habilit
 14. Agora iniciaremos a implementação com o comando: terraform apply
 15. Quando solicitado, digite "yes" para continuar. Agora só aguardar. Leva aproximadamente uns 10min.
 16. Para validar se todos os componentes foram criados corretamente, basta acessar seus respectivos menus no console.
+17. Note que após o deployment do ambiente, ainda poderá levar algum tempo até todas as VMs tenham executado todo o script de inicialização onde serão atualizados todos os pacotes e configuradas as aplicações.
 
 ## ⚙️ Pós Instalação
 

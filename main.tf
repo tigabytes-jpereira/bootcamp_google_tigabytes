@@ -312,7 +312,7 @@ module "cloud_armor" {
   project_id                           = var.project
   name                                 = "armor-policy-frontend-lb"
   description                          = "Cloud Armor Security Policy"
-  default_rule_action                  = "deny"
+  default_rule_action                  = "deny(403)"
   type                                 = "CLOUD_ARMOR"
   layer_7_ddos_defense_enable          = true
   layer_7_ddos_defense_rule_visibility = "STANDARD"

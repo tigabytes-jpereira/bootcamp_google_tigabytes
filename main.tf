@@ -43,7 +43,7 @@ resource "google_storage_bucket_object" "frontend" {
 #Criando instância Memorystore for Redis
 module "memorystore" {
    source  = "terraform-google-modules/memorystore/google"
-   version = "~> 14.0"
+   version = ">= 14.0"
 
    name           = "memorystore"
    tier           = "STANDARD_HA"
@@ -307,7 +307,7 @@ resource "google_compute_region_instance_group_manager" "mig-app" {
 #Criando a Security Policy a ser aplicada ao Cloud Armor
 module "cloud_armor" {
   source   = "GoogleCloudPlatform/cloud-armor/google"
-  version  = "~> 5.0"
+  version  = ">= 5.0"
 
   project_id                           = var.project
   name                                 = "armor-policy-frontend-lb"
@@ -423,7 +423,7 @@ resource "google_compute_address" "frontend_lb_ip" {
 }
 module "external_lb" {
   source = "GoogleCloudPlatform/lb-http/google"
-  version = "~> 12.0" # Use a versão mais recente ou a desejada
+  version = ">= 12.0" # Use a versão mais recente ou a desejada
 
   name            = "scclab-external-lb"
   project         = var.project

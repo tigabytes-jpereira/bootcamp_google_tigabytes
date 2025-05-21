@@ -229,7 +229,7 @@ resource "google_compute_instance_template" "instance-template-web" {
 #  }
   metadata = {
     enable-osconfig = "TRUE"
-    startup-script  = "#!/bin/bash\napt update -y && apt upgrade -y\napt install nginx -y\napt install python3-flask -y\nsystemctl enable nginx\nsystemctl start nginx\nvm_hostname=$(curl -s \"http://metadata.google.internal/computeMetadata/v1/instance/name\" -H \"Metadata-Flavor: Google\")\ncd /var/www/html/\nwget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/index.html\nmkdir app && cd app\ngsutil cp gs://cloud-training/GCPSEC-ScannerAppEngine/flask_code.tar . && tar xvf flask_code.tar\npython3 app.py"
+    startup-script  = "#!/bin/bash\napt update -y\napt install nginx -y\napt install python3-flask -y\nsystemctl enable nginx\nsystemctl start nginx\nvm_hostname=$(curl -s \"http://metadata.google.internal/computeMetadata/v1/instance/name\" -H \"Metadata-Flavor: Google\")\ncd /var/www/html/\nwget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/raw/refs/heads/main/index.html\nmkdir app && cd app\ngsutil cp gs://cloud-training/GCPSEC-ScannerAppEngine/flask_code.tar . && tar xvf flask_code.tar\npython3 app.py"
   }
   
   service_account {
@@ -269,7 +269,7 @@ resource "google_compute_instance_template" "instance-template-app" {
 
   metadata = {
     enable-osconfig = "TRUE"
-    startup-script  = "#!/bin/bash\napt update -y && apt upgrade -y\napt install nginx -y\nsystemctl enable nginx\nsystemctl start nginx\nvm_hostname=$(curl -s \"http://metadata.google.internal/computeMetadata/v1/instance/name\" -H \"Metadata-Flavor: Google\")\ncat > /var/www/html/index.html <<EOF\n<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<body>\n    Bienvenido a Tigabytes! Instance utilizada: $vm_hostname da subnet privada.\n</body>\n</html>\nEOF"
+    startup-script  = "#!/bin/bash\napt update -y\napt install nginx -y\nsystemctl enable nginx\nsystemctl start nginx\nvm_hostname=$(curl -s \"http://metadata.google.internal/computeMetadata/v1/instance/name\" -H \"Metadata-Flavor: Google\")\ncat > /var/www/html/index.html <<EOF\n<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<body>\n    Bienvenido a Tigabytes! Instance utilizada: $vm_hostname da subnet privada.\n</body>\n</html>\nEOF"
   }
   service_account {
     scopes = [

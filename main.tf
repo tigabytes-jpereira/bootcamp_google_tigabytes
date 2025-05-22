@@ -286,6 +286,10 @@ resource "google_compute_region_instance_group_manager" "mig-web" {
   distribution_policy_zones = [var.zone1, var.zone2, var.zone3] #Considerando a região de US-EAST1, preencha de acordo com a região escolhida
   target_size               = var.target_size
   base_instance_name        = "instance-template-web"
+  named_port {
+    name = "http"
+    port = 80
+  }
   version {
     instance_template = google_compute_instance_template.instance-template-web.self_link
   }
@@ -299,6 +303,10 @@ resource "google_compute_region_instance_group_manager" "mig-app" {
   distribution_policy_zones = [var.zone1, var.zone2, var.zone3] #Considerando a região de US-EAST1, preencha de acordo com a região escolhida
   target_size               = var.target_size
   base_instance_name        = "instance-template-app"
+  named_port {
+    name = "http"
+    port = 80
+  }
   version {
     instance_template = google_compute_instance_template.instance-template-app.self_link
   }
@@ -457,7 +465,7 @@ module "external_lb" {
   }
   security_policy             = module.cloud_armor.policy.self_link
   address    = google_compute_address.frontend_lb_ip.address
-  depends_on = [google_compute_network.vpc_network, google_compute_subnetwork.subnet_publica, google_compute_region_instance_group_manager.mig-web, module.cloud_armor.policy]
+  depends_on = [google_compute_network.vpc_network, google_compute_subnetwork.subnet_publica, google_compute_address.frontend_lb_ip, google_compute_region_instance_group_manager.mig-web, module.cloud_armor.policy]
 }
 # Reserva de IP Privado e criação do Internal Load Balancer para o Backend
 resource "google_compute_address" "backend_internal_lb_ip" {

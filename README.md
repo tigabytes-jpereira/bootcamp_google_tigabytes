@@ -92,7 +92,7 @@ E as permissões abaixo no nível de organização se necessário:
 
 Após concluírmos o laboratório, lembre de excluir os recursos aqui criados, assim não teremos custos desnecessários.
 1. Navegue até o diretório do laboratório: cd bootcamp_google_tigabytes-main
-2. Digite o comando a seguir e confirme com "Y" quando solicitado: terraform destroy
+2. Digite o comando a seguir e confirme com "yes" quando solicitado: terraform destroy
    
 ## ✒️ Autores
 

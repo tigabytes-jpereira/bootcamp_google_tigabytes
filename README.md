@@ -88,7 +88,12 @@ E as permissões abaixo no nível de organização se necessário:
     - Ativar para um projeto quando o Security Command Center estiver ativo na organização. (https://cloud.google.com/security-command-center/docs/activate-scc-for-a-project#project-activation-scc-active-in-org)
     - Ativar para um projeto quando o Security Command Center não estiver ativo na organização.  (https://cloud.google.com/security-command-center/docs/activate-scc-for-a-project#project-activation-scc-inactive-in-org)
     
+## ⚙️ Limpando o ambiente
 
+Após concluírmos o laboratório, lembre de excluir os recursos aqui criados, assim não teremos custos desnecessários.
+1. Navegue até o diretório do laboratório: cd bootcamp_google_tigabytes-main
+2. Digite o comando a seguir e confirme com "Y" quando solicitado: terraform destroy
+   
 ## ✒️ Autores
 
 Mencione todos aqueles que ajudaram a levantar o projeto desde o seu início

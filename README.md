@@ -29,16 +29,15 @@ Verifique se as APIs relacionadas aos serviços acima estão devidamente habilit
 
 1. Faça login em seu console do GCP
 2. Abra o Terminal (>_) localizado no menu superior direito
-3. Faça o download dos arquivos disponíveis no Github do bootcamp com o comando: wget https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes/archive/refs/heads/main.zip
-4. Descompacte o arquivo com o comando abaixo: unzip main.zip
-5. Abra o diretório criado: cd bootcamp_google_tigabytes-main
-6. Nele estarão contidos todos os arquivos necessários para este lab
-7. Abra o Editor ("Open Editor) disponivel na barra de opções do Terminal e abra o arquivo "variables.tf"
-8. Altere os valores das variáveis "project", "region", "zone" e "bucket_name" de acordo com seu ambiente e salve as alterações com Ctrl+S.
-9. Volte ao Terminal (Open Terminal)
-10. Inicialize o Terraform executando o comando: terraform init
-11. Execute o comando a seguir para iniciar o processo de validação dos arquivos e está tudo pronto para criar o ambiente: terraform plan
-12. Se tudo estiver ok, será exibido algo parecido com essa saída:
+3. Faça o download dos arquivos disponíveis no Github do bootcamp com o comando: git clone https://github.com/tigabytes-jpereira/bootcamp_google_tigabytes.git
+4. Abra o diretório criado: cd bootcamp_google_tigabytes
+5. Nele estarão contidos todos os arquivos necessários para este lab
+6. Abra o Editor ("Open Editor) disponivel na barra de opções do Terminal e abra o arquivo "variables.tf"
+7. Altere os valores das variáveis "project" e "bucket_name" de acordo com seu ambiente e salve as alterações com Ctrl+S.
+8. Volte ao Terminal (Open Terminal)
+9. Inicialize o Terraform executando o comando: terraform init
+10. Execute o comando a seguir para iniciar o processo de validação dos arquivos e está tudo pronto para criar o ambiente: terraform plan
+11. Se tudo estiver ok, será exibido algo parecido com essa saída:
     Plan: 32 to add, 0 to change, 0 to destroy.
 
     Changes to Outputs:
@@ -50,11 +49,11 @@ Verifique se as APIs relacionadas aos serviços acima estão devidamente habilit
         + instance_group_web     = (known after apply)
         + self_link_app          = (known after apply)
         + self_link_web          = (known after apply)
-13. Salve essas informações da saída pois usaremos durante o bootcamp.
-14. Agora iniciaremos a implementação com o comando: terraform apply
-15. Quando solicitado, digite "yes" para continuar. Agora só aguardar. Leva aproximadamente uns 10min.
-16. Para validar se todos os componentes foram criados corretamente, basta acessar seus respectivos menus no console.
-17. Note que após o deployment do ambiente, ainda poderá levar algum tempo até todas as VMs tenham executado todo o script de inicialização onde serão atualizados todos os pacotes e configuradas as aplicações.
+12. Salve essas informações da saída pois usaremos durante o bootcamp.
+13. Agora iniciaremos a implementação com o comando: terraform apply
+14. Quando solicitado, digite "yes" para continuar. Agora só aguardar. Leva aproximadamente uns 10min.
+15. Para validar se todos os componentes foram criados corretamente, basta acessar seus respectivos menus no console.
+16. Note que após o deployment do ambiente, ainda poderá levar algum tempo até todas as VMs tenham executado todo o script de inicialização onde serão atualizados todos os pacotes e configuradas as aplicações.
 
 ## ⚙️ Pós Instalação
 

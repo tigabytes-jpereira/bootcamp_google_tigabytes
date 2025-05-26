@@ -17,7 +17,7 @@ resource "google_spanner_database" "tarefas" {
   ]
   deletion_protection = false
 }
- #Criando um novo Cloud Storage Bucket e populando
+#Criando um novo Cloud Storage Bucket e populando
 resource "google_storage_bucket" "scclab-bkt" {
   project       = var.project
   name          = var.bucket_name
@@ -48,7 +48,7 @@ module "redis_cluster" {
    name           = "memorystore-cluster"
    project_id     = var.project
    region         = var.region
-   network        = google_compute_network.vpc_network.id
+   network        = ["projects/${var.project}/global/networks/${google_compute_network.vpc_network.name}"]
    node_type      = "REDIS_HIGHMEM_MEDIUM"
    shard_count    = 3
    deletion_protection_enabled = false

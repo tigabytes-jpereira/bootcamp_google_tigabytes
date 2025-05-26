@@ -4,12 +4,12 @@ output "backend_internal_lb_ip" {
 }
 
 output "frontend_lb_ip" {
-  value       = google_compute_address.frontend_lb_ip.address
+  value       = module.external_lb.external_ip
   description = "IP público do External LB das VMs frontend"
 }
 
 output "frontend_url" {
-  value       = "http://${google_compute_address.frontend_lb_ip.address}"
+  value       = "http://${module.external_lb.external_ip}"
   description = "URL do frontend"
 }
 

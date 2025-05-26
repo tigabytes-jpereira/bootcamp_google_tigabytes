@@ -42,6 +42,7 @@ resource "google_storage_bucket_object" "frontend" {
 }
 # Create a service connection policy
 resource "google_network_connectivity_service_connection_policy" "default" {
+  project = var.project  
   name          = "service-connection-policy"
   location      = var.region
   service_class = "gcp-memorystore-redis"

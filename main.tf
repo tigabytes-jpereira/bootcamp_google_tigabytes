@@ -4,7 +4,7 @@ resource "google_spanner_instance" "main" {
   project      = var.project
   config       = var.spanner_config
   display_name = var.spanner_instance_name
-  num_nodes    = 1 # Comece com 1 nó para demonstração, aumente conforme necessário
+  num_nodes    = 3
   force_destroy = true
 }
 # Criação do banco de dados do Spanner
@@ -41,18 +41,17 @@ resource "google_storage_bucket_object" "frontend" {
  source       = "./scclab-script-frontend.sh"
 }
 #Criando instância Memorystore for Redis
-module "memorystore" {
-   source  = "terraform-google-modules/memorystore/google"
+module "redis_cluster" {
+  source  = "terraform-google-modules/memorystore/google//modules/redis-cluster"
    version = ">= 14.0"
 
-   name           = "memorystore"
-   tier           = "STANDARD_HA"
+   name           = "memorystore-cluster"
    project_id     = var.project
-   memory_size_gb = 5
-   enable_apis    = "true"
    region         = var.region
-   replica_count  = 2
-   read_replicas_mode  = "READ_REPLICAS_ENABLED"
+   network        = google_compute_network.vpc_network.id
+   node_type      = "REDIS_HIGHMEM_MEDIUM"
+   shard_count    = 3
+   deletion_protection_enabled = false
  }
 # Criação da rede VPC
 resource "google_compute_network" "vpc_network" {
@@ -204,7 +203,7 @@ resource "google_compute_firewall" "allow_health_check" {
 #Criando a Instance Template das VMs de Frontend
 resource "google_compute_instance_template" "instance-template-web" {
   name_prefix  = "scclab-web-vm-"
-  machine_type = "e2-micro"
+  machine_type = "n2-standard-32"
   project      = var.project
   region       = var.region
   tags         = ["http-server", "web-server"]
@@ -241,7 +240,7 @@ resource "google_compute_instance_template" "instance-template-web" {
 }
 resource "google_compute_instance_template" "instance-template-app" {
   name_prefix  = "scclab-app-vm-"
-  machine_type = "e2-micro"
+  machine_type = "n2-standard-32"
   project      = var.project
   region       = var.region
   tags         = ["http-server", "app-server"]
@@ -283,7 +282,7 @@ resource "google_compute_region_instance_group_manager" "mig-web" {
   name                      = "mig-web"
   project                   = var.project
   region                    = var.region
-  distribution_policy_zones = [var.zone1, var.zone2, var.zone3] #Considerando a região de US-EAST1, preencha de acordo com a região escolhida
+  distribution_policy_zones = [var.zone1, var.zone2, var.zone3]
   target_size               = var.target_size
   base_instance_name        = "instance-template-web"
   named_port {
@@ -300,7 +299,7 @@ resource "google_compute_region_instance_group_manager" "mig-app" {
   name                      = "mig-app"
   project                   = var.project
   region                    = var.region
-  distribution_policy_zones = [var.zone1, var.zone2, var.zone3] #Considerando a região de US-EAST1, preencha de acordo com a região escolhida
+  distribution_policy_zones = [var.zone1, var.zone2, var.zone3]
   target_size               = var.target_size
   base_instance_name        = "instance-template-app"
   named_port {

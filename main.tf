@@ -40,6 +40,17 @@ resource "google_storage_bucket_object" "frontend" {
  bucket       = google_storage_bucket.scclab-bkt.id
  source       = "./scclab-script-frontend.sh"
 }
+# Create a service connection policy
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name          = "service-connection-policy"
+  location      = var.region
+  service_class = "gcp-memorystore-redis"
+  network       = google_compute_network.vpc_network.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.subnet_privada.id]
+    limit       = 2
+  }
+}
 #Criando instância Memorystore for Redis
 module "redis_cluster" {
   source  = "terraform-google-modules/memorystore/google//modules/redis-cluster"
@@ -52,6 +63,7 @@ module "redis_cluster" {
    node_type      = "REDIS_HIGHMEM_MEDIUM"
    shard_count    = 3
    deletion_protection_enabled = false
+   depends_on = [ google_network_connectivity_service_connection_policy.default ]
  }
 # Criação da rede VPC
 resource "google_compute_network" "vpc_network" {

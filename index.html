@@ -15,7 +15,14 @@
     </style>
 </head>
 <body>
-    <div class="header">Retail Rocket - Instance utilizada: $vm_hostname</div>
+<div class="header">Retail Rocket - Instance utilizada: $vm_hostname
+        <form id="searchForm">
+            <input type="text" id="searchInput" name="query" placeholder="Digite sua busca XSS aqui...">
+            <button type="submit">Pesquisar</button>
+        </form>
+        <div id="searchResultOutput" style="margin-top: 10px; color: black; background-color: #f4f4f4; padding: 10px; border-radius: 5px; word-wrap: break-word;">
+            </div>
+    </div>
     <div class="product-container">
         <!-- Produtos inseridos manualmente -->
         <div class="product">
@@ -124,5 +131,19 @@
         <ul id="cart-list"></ul>
         <button>Finalizar Compra</button>
     </div>
+<script>
+    document.getElementById('searchForm').addEventListener('submit', function(event) {
+        // Previne o envio padrão do formulário
+        event.preventDefault();
+
+        const searchTerm = document.getElementById('searchInput').value;
+        const outputDiv = document.getElementById('searchResultOutput');
+
+        // PONTO VULNERÁVEL:
+        // O conteúdo de 'searchTerm' é inserido diretamente no HTML da página.
+        // Se 'searchTerm' contiver código HTML ou JavaScript, ele será renderizado e executado pelo navegador.
+        outputDiv.innerHTML = "Você pesquisou por: " + searchTerm;
+    });
+</script>
 </body>
 </html>
